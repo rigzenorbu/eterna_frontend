@@ -1,4 +1,4 @@
-import { TokenTable } from '@/components/token-table'
+import { TokenTable } from '@/components/token-table';
 
 export default function Home() {
   return (
@@ -11,5 +11,5 @@ export default function Home() {
         <TokenTable />
       </div>
     </main>
-  )
+  );
 }

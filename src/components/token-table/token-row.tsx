@@ -14,99 +14,89 @@ interface TokenRowProps {
 }
 
 export const TokenRow = memo(({ token, onSelect }: TokenRowProps) => {
-  const copyToClipboard = (e: React.MouseEvent, text: string) => {
+  const copyToClipboard = (e: React.MouseEvent) => {
     e.stopPropagation()
-    navigator.clipboard.writeText(text)
+    navigator.clipboard.writeText(token.contractAddress)
   }
 
   return (
     <div 
-      className="flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 cursor-pointer"
+      className="grid grid-cols-[48px_200px_140px_120px_120px_110px_100px] items-center gap-4 p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200 cursor-pointer h-16"
       onClick={() => onSelect(token)}
     >
-      {/* Token Icon */}
-      <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-4">
+      {/* 1. Icon */}
+      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
         {token.symbol.slice(0, 2)}
       </div>
-      
-      {/* Token Info */}
-      <div className="flex-shrink-0 mr-6" style={{ width: '180px' }}>
-        <div className="font-semibold text-gray-900 text-base mb-1">{token.name}</div>
-        <div className="text-sm text-gray-500 mb-1">{token.symbol}</div>
-        <Popover.Root>
-          <Popover.Trigger asChild>
-            <button 
-              className="text-xs text-gray-400 hover:text-blue-600 flex items-center gap-1"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {shortenAddress(token.contractAddress)}
-              <Copy className="w-3 h-3" />
-            </button>
-          </Popover.Trigger>
-          <Popover.Portal>
-            <Popover.Content 
-              className="bg-white p-3 rounded-lg shadow-xl border border-gray-200 z-50 min-w-[280px]"
-              sideOffset={5}
-            >
-              <div className="space-y-2">
-                <p className="text-xs text-gray-600 font-medium">Contract Address</p>
-                <p className="text-xs font-mono bg-gray-50 p-2 rounded break-all">{token.contractAddress}</p>
-                <button
-                  onClick={(e) => copyToClipboard(e, token.contractAddress)}
-                  className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1 w-full justify-center py-1 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
-                >
-                  <Copy className="w-3 h-3" />
-                  Copy Address
-                </button>
-              </div>
-              <Popover.Arrow className="fill-white" />
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
+
+      {/* 2. Token Name & Address */}
+      <div className="space-y-1 truncate">
+        <div className="font-semibold text-gray-900 text-sm truncate" title={token.name}>{token.name}</div>
+        <div className="flex items-center gap-1">
+          <Popover.Root>
+            <Popover.Trigger asChild>
+              <button className="text-xs text-blue-600 hover:text-blue-700 font-mono truncate max-w-[100px]" title={token.contractAddress}>
+                {shortenAddress(token.contractAddress, 4)}
+              </button>
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Content className="bg-white p-3 rounded-lg shadow-xl border z-50 w-80">
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-gray-900">Contract Address</p>
+                  <div className="flex items-center justify-between">
+                    <code className="text-xs font-mono bg-gray-50 px-2 py-1 rounded w-full break-all">{token.contractAddress}</code>
+                    <button
+                      onClick={copyToClipboard}
+                      className="ml-2 p-1.5 bg-blue-100 hover:bg-blue-200 rounded-lg transition-colors"
+                    >
+                      <Copy className="w-4 h-4 text-blue-600" />
+                    </button>
+                  </div>
+                </div>
+                <Popover.Arrow className="fill-white" />
+              </Popover.Content>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>
       </div>
 
-      {/* Price */}
-      <div className="flex-shrink-0 mr-8" style={{ width: '140px' }}>
-        <PriceCell price={token.price} priceChange24h={token.priceChange24h} />
-      </div>
+      {/* 3. Price */}
+      <PriceCell price={token.price} priceChange24h={token.priceChange24h} />
 
-      {/* Volume */}
+      {/* 4. Volume */}
       <Tooltip.Provider>
-        <Tooltip.Root>
+        <Tooltip.Root delayDuration={0}>
           <Tooltip.Trigger asChild>
-            <div className="flex-shrink-0 text-right mr-8" style={{ width: '120px' }}>
-              <div className="text-sm font-semibold text-gray-900 mb-1">{formatNumber(token.volume24h)}</div>
-              <div className="text-xs text-gray-500">Volume</div>
+            <div className="text-right">
+              <div className="font-semibold text-sm text-gray-900">{formatNumber(token.volume24h)}</div>
+              <div className="text-xs text-gray-500 mt-0.5">Vol</div>
             </div>
           </Tooltip.Trigger>
           <Tooltip.Portal>
-            <Tooltip.Content 
-              className="bg-gray-900 text-white px-3 py-2 rounded text-sm z-50 max-w-xs"
-              sideOffset={5}
-            >
-              24h Trading Volume: ${token.volume24h.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            <Tooltip.Content className="bg-gray-900 text-white px-2 py-1 rounded-md text-xs shadow-lg z-50 whitespace-nowrap">
+              ${token.volume24h.toLocaleString()}
               <Tooltip.Arrow className="fill-gray-900" />
             </Tooltip.Content>
           </Tooltip.Portal>
         </Tooltip.Root>
       </Tooltip.Provider>
 
-      {/* Market Cap */}
-      <div className="flex-shrink-0 text-right mr-8" style={{ width: '130px' }}>
-        <div className="text-sm font-semibold text-gray-900 mb-1">{formatNumber(token.marketCap)}</div>
-        <div className="text-xs text-gray-500">Market Cap</div>
+      {/* 5. Market Cap */}
+      <div className="text-right">
+        <div className="font-semibold text-sm text-gray-900">{formatNumber(token.marketCap)}</div>
+        <div className="text-xs text-gray-500 mt-0.5">Mkt Cap</div>
       </div>
 
-      {/* Liquidity */}
-      <div className="flex-shrink-0 text-right mr-8" style={{ width: '120px' }}>
-        <div className="text-sm font-semibold text-gray-900 mb-1">{formatNumber(token.liquidity)}</div>
-        <div className="text-xs text-gray-500">Liquidity</div>
+      {/* 6. Liquidity */}
+      <div className="text-right">
+        <div className="font-semibold text-sm text-gray-900">{formatNumber(token.liquidity)}</div>
+        <div className="text-xs text-gray-500 mt-0.5">Liq</div>
       </div>
 
-      {/* Holders */}
-      <div className="flex-shrink-0 text-right" style={{ width: '100px' }}>
-        <div className="text-sm font-semibold text-gray-900 mb-1">{token.holders.toLocaleString()}</div>
-        <div className="text-xs text-gray-500">Holders</div>
+      {/* 7. Holders */}
+      <div className="text-right">
+        <div className="font-semibold text-sm text-gray-900">{token.holders.toLocaleString()}</div>
+        <div className="text-xs text-gray-500 mt-0.5">Holders</div>
       </div>
     </div>
   )

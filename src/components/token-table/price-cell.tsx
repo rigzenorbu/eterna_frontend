@@ -13,14 +13,16 @@ export const PriceCell = memo(({ price, priceChange24h }: PriceCellProps) => {
   const [prevPrice, setPrevPrice] = useState(price)
 
   useEffect(() => {
+    let timer: NodeJS.Timeout
     if (price !== prevPrice) {
       const isIncrease = price > prevPrice
       setAnimationClass(isIncrease ? 'bg-green-100' : 'bg-red-100')
       
-      const timer = setTimeout(() => setAnimationClass(''), 500)
+      timer = setTimeout(() => setAnimationClass(''), 500)
       setPrevPrice(price)
-      
-      return () => clearTimeout(timer)
+    }
+    return () => {
+      if (timer) clearTimeout(timer)
     }
   }, [price, prevPrice])
 
@@ -28,7 +30,7 @@ export const PriceCell = memo(({ price, priceChange24h }: PriceCellProps) => {
     <div className={cn('transition-colors duration-500 rounded-lg px-3 py-2', animationClass)}>
       <div className="font-bold text-gray-900 text-base">{formatNumber(price)}</div>
       <div className={cn(
-        'text-sm font-semibold',
+        'text-sm font-semibold', 
         priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'
       )}>
         {formatPercentage(priceChange24h)}
